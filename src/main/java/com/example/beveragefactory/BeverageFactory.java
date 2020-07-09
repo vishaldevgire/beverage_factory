@@ -2,6 +2,7 @@ package com.example.beveragefactory;
 
 import com.example.beveragefactory.model.Drink;
 import com.example.beveragefactory.model.Ingredient;
+import com.example.beveragefactory.model.OrderResult;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
@@ -65,19 +66,19 @@ public class BeverageFactory {
                 );
     }
 
-    public List<Pair<String, Double>> processOrders(String[] orders) {
+    public List<OrderResult> processOrders(String[] orders) {
         if (orders == null || orders.length == 0) {
             return new ArrayList<>();
         }
 
-        List<Pair<String, Double>> result = Arrays.stream(orders).map(
-                order -> Pair.of(order, prepareOrder(order))
+        List<OrderResult> result = Arrays.stream(orders).map(
+                order -> prepareOrder(order)
         ).collect(Collectors.toList());
 
         return result;
     }
 
-    private Double prepareOrder(String orderCommaSeperated) {
+    private OrderResult prepareOrder(String orderCommaSeperated) {
         List<String> orderTokens = toList(orderCommaSeperated).stream().map(token -> {
             if (token.trim().startsWith("-")) {
                 return token.trim().substring(1);
@@ -91,6 +92,7 @@ public class BeverageFactory {
         List<Ingredient> ingredients = drink.getIngredients();
         ingredients.removeAll(exclusions);
 
-        return ingredients.stream().mapToDouble(Ingredient::getPrice).sum();
+        double price = ingredients.stream().mapToDouble(Ingredient::getPrice).sum();
+        return OrderResult.success(orderCommaSeperated, price);
     }
 }

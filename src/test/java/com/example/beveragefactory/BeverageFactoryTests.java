@@ -1,7 +1,9 @@
 package com.example.beveragefactory;
 
 
+import com.example.beveragefactory.model.OrderResult;
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
 
@@ -22,20 +24,18 @@ class BeverageFactoryTests {
     @Test
     void shouldProcessOrderWithoutExclusions() {
         String[] orders = new String[] {"Coffee"};
-        List<Pair<String, Double>> result = Collections.singletonList(
-                Pair.of("Coffee", 5d)
-        );
+        OrderResult expected = OrderResult.success(orders[0], 5d);
+        List<OrderResult> actual = beverageFactory.processOrders(orders);
 
-        assertThat(beverageFactory.processOrders(orders)).isEqualTo(result);
+        assertThat(actual.get(0)).isEqualTo(expected);
     }
 
     @Test
     void shouldProcessOrderWithExclusions() {
         String[] orders = new String[] {"Chai, -sugar, -milk" };
-        List<Pair<String, Double>> result = Collections.singletonList(
-                Pair.of("Chai, -sugar, -milk", 2.5)
-        );
+        OrderResult expected = OrderResult.success(orders[0], 2.5);
+        List<OrderResult> actual = beverageFactory.processOrders(orders);
 
-        assertThat(beverageFactory.processOrders(orders)).isEqualTo(result);
+        assertThat(actual.get(0)).isEqualTo(expected);
     }
 }
