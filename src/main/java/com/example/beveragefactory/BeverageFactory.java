@@ -84,13 +84,27 @@ public class BeverageFactory {
                 return token.trim().substring(1);
             }
             return token.trim();
-        }).collect(Collectors.toList());
-
-        List<Ingredient> exclusions = getIngredients(orderTokens.subList(1, orderTokens.size()));
+        }).map(String::toLowerCase).collect(Collectors.toList());
 
         Drink drink = drinks.get(orderTokens.get(0).toLowerCase());
+
+        if (drink == null ) {
+            return OrderResult.orderMustContainAtleastOneMenuItem(orderCommaSeperated);
+        }
+
+        List<String> ingredientList = drink.getIngredients().stream().map(Ingredient::getName).collect(Collectors.toList());
+        if (!ingredientList.containsAll(orderTokens.subList(1, orderTokens.size()))) {
+            return OrderResult.orderMustNotContainInvalidExclusions(orderCommaSeperated);
+        }
+
         List<Ingredient> ingredients = drink.getIngredients();
+        List<Ingredient> exclusions = getIngredients(orderTokens.subList(1, orderTokens.size()));
+
         ingredients.removeAll(exclusions);
+
+        if (ingredients.size() == 0) {
+            return OrderResult.orderCanNotExcludeAllIngredients(orderCommaSeperated);
+        }
 
         double price = ingredients.stream().mapToDouble(Ingredient::getPrice).sum();
         return OrderResult.success(orderCommaSeperated, price);

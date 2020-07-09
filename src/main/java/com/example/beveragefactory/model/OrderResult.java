@@ -1,12 +1,20 @@
 package com.example.beveragefactory.model;
 
-import org.springframework.core.annotation.Order;
-
 public class OrderResult {
     private boolean success;
     private double price;
     private String errorMessage;
     private String order;
+
+    @Override
+    public String toString() {
+        return "OrderResult{" +
+                "success=" + success +
+                ", price=" + price +
+                ", errorMessage='" + errorMessage + '\'' +
+                ", order='" + order + '\'' +
+                '}';
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -35,7 +43,7 @@ public class OrderResult {
 
     public static class Builder {
         private boolean success = false;
-        private Double price = null;
+        private Double price = 0d;
         private String errorMessage = null;
         private String order = null;
 
@@ -55,6 +63,7 @@ public class OrderResult {
         }
 
         public OrderResult build(){
+
             return new OrderResult(
                    this.success,
                     this.errorMessage,
@@ -71,12 +80,16 @@ public class OrderResult {
         this.order = order;
     }
 
-    public static OrderResult atLeastOneMenuItemError() {
-        return new Builder("").error("Order must contain atleast one menu item").build();
+    public static OrderResult orderMustContainAtleastOneMenuItem(String order) {
+        return new Builder(order).error("Order must contain at least one valid menu item").build();
     }
 
-    public static OrderResult orderCanNotExcludeAllIngredients() {
-        return new Builder("").error("Order must not exclude all ingredients of menu item").build();
+    public static OrderResult orderMustNotContainInvalidExclusions(String order) {
+        return new Builder(order).error("Order must not contain invalid ingredients").build();
+    }
+
+    public static OrderResult orderCanNotExcludeAllIngredients(String order) {
+        return new Builder(order).error("Order must not exclude all ingredients of menu item").build();
     }
 
     public static OrderResult success(String order, double price) {

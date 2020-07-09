@@ -2,7 +2,7 @@ package com.example.beveragefactory.model;
 
 public class Ingredient {
     public Ingredient(String name, double price) {
-        this.name = name;
+        this.name = name.toLowerCase();
         this.price = price;
     }
 

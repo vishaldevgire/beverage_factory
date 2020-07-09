@@ -8,6 +8,11 @@ import java.util.Map;
 
 public class BeverageFactoryApplication {
     public static void main(String[] args) {
-        new BeverageFactory().processOrders(args);
+        String[] orders = {
+                "Coffee",
+                "Chai, -sugar, -milk"
+        };
+
+        new BeverageFactory().processOrders(orders);
     }
 }
