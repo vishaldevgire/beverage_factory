@@ -8,5 +8,9 @@ public class Drink {
         this.ingredients = new ArrayList<>(ingredients);
     }
 
+    public List<Ingredient> getIngredients() {
+        return new ArrayList<>(ingredients);
+    }
+
     List<Ingredient> ingredients;
 }

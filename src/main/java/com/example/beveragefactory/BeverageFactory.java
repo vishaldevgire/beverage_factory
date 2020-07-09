@@ -2,7 +2,7 @@ package com.example.beveragefactory;
 
 import com.example.beveragefactory.model.Drink;
 import com.example.beveragefactory.model.Ingredient;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,27 +23,74 @@ public class BeverageFactory {
         ingredients.add(new Ingredient("water", 0.5));
 
         ingredients.add(new Ingredient("coffee", 3));
-        ingredients.add(new Ingredient("chai", 2));
+        ingredients.add(new Ingredient("tea", 2));
         ingredients.add(new Ingredient("banana", 4));
         ingredients.add(new Ingredient("strawberries", 5));
         ingredients.add(new Ingredient("lemon", 5.5));
 
-        drinks.put("coffee", new Drink(getIngredients("coffee, milk, sugar, water")));
+
+        drinks.put("coffee", toDrink("coffee, milk, sugar, water"));
+        drinks.put("chai", toDrink("Tea, milk, sugar, water"));
+        drinks.put("banana smoothie", toDrink("banana, milk, sugar, water"));
+        drinks.put("strawberry shake", toDrink("strawberries, sugar, milk, water"));
+        drinks.put("mojito", toDrink("Lemon, sugar, water, soda, mint"));
     }
 
-    private List<Ingredient> getIngredients(String ingredientNames) {
-        return Arrays.stream(ingredientNames.split(","))
+    public BeverageFactory() {
+        initialize();
+    }
+
+    private Drink toDrink(String ingredientNamesString) {
+        List<String> ingredientNames = toList(ingredientNamesString);
+        return new Drink(getIngredients(ingredientNames));
+    }
+
+    private List<String> toList(String commaSeperateStrings) {
+        return Arrays.stream(commaSeperateStrings.split(","))
                 .map(String::trim)
+                .collect(Collectors.toList());
+    }
+
+    private List<Ingredient> getIngredients(List<String> ingredientNames) {
+        return ingredientNames
+                .stream()
                 .map(ingredientName ->
-                    ingredients
-                        .stream()
-                        .filter(ingredient -> ingredient.getName().equals(ingredientName))
-                        .findFirst()
-                        .get()).collect(Collectors.toList()
+                        ingredients
+                                .stream()
+                                .filter(ingredient ->
+                                        ingredient.getName().equalsIgnoreCase(ingredientName)
+                                )
+                                .findFirst()
+                                .get()).collect(Collectors.toList()
                 );
     }
 
     public List<Pair<String, Double>> processOrders(String[] orders) {
-        return new ArrayList<>();
+        if (orders == null || orders.length == 0) {
+            return new ArrayList<>();
+        }
+
+        List<Pair<String, Double>> result = Arrays.stream(orders).map(
+                order -> Pair.of(order, prepareOrder(order))
+        ).collect(Collectors.toList());
+
+        return result;
+    }
+
+    private Double prepareOrder(String orderCommaSeperated) {
+        List<String> orderTokens = toList(orderCommaSeperated).stream().map(token -> {
+            if (token.trim().startsWith("-")) {
+                return token.trim().substring(1);
+            }
+            return token.trim();
+        }).collect(Collectors.toList());
+
+        List<Ingredient> exclusions = getIngredients(orderTokens.subList(1, orderTokens.size()));
+
+        Drink drink = drinks.get(orderTokens.get(0).toLowerCase());
+        List<Ingredient> ingredients = drink.getIngredients();
+        ingredients.removeAll(exclusions);
+
+        return ingredients.stream().mapToDouble(Ingredient::getPrice).sum();
     }
 }
