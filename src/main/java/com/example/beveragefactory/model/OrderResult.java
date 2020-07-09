@@ -8,12 +8,11 @@ public class OrderResult {
 
     @Override
     public String toString() {
-        return "OrderResult{" +
-                "success=" + success +
-                ", price=" + price +
-                ", errorMessage='" + errorMessage + '\'' +
-                ", order='" + order + '\'' +
-                '}';
+        if (success) {
+           return String.format("\n { 'order' '%s', 'price': %s }", order, price);
+        }
+
+        return String.format("\n { 'order: '%s', error: '%s' }", order, errorMessage);
     }
 
     @Override
